@@ -1,6 +1,3 @@
-# wx
-get market data from other exchange and calculate the weighted mean value, then publish it
-
 1.folder runner1 is previous , it's not used
 global = &Global{
 		apiNames: []string{"huobi", "okex", "hitbtc", "binance", "bithumb"}, // each exchange
