@@ -20,6 +20,9 @@ func Struct2JsonString(structt interface{}) (jsonString string, err error) {
 }
 
 func GoexTicker2Ticker(goexTick *goex.Ticker) *models.Ticker {
+	if nil == goexTick {
+		goexTick = goex.NewTicker()
+	}
 	ticker := &models.Ticker{
 		Symbol: goexTick.Pair.ToSymbol("_"),
 		Last: goexTick.Last,

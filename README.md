@@ -1,10 +1,11 @@
-1.folder runner1 is previous , it's not used
-global = &Global{
-		apiNames: []string{"huobi", "okex", "hitbtc", "binance", "bithumb"}, // each exchange
-		vecSymbols: []string{"btc_usdt", "eth_usdt"},// each symbol
-	}
+1.version1 and version2 is previous version, they are not be used
 
-2.config file is global.go
+2.config.go
+subscribe each symbols from each exchange
+global = &Global{
+		ApiNames: []string{"huobi", "okex", "hitbtc", "binance", "bithumb"}, //exchange
+		VecSymbols: []string{"BTC_USDT", "ETH_USDT"},//
+	}
 
 3.we use timer to get ticker from ecah exchange, then calculate weighted mean value, and write it to kafka
 
