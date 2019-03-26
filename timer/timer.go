@@ -5,6 +5,7 @@ import (
 	"github.com/nntaoli-project/GoEx"
 	"github.com/wudian/wx/config"
 	"github.com/wudian/wx/utils"
+	"log"
 	"math"
 	"time"
 )
@@ -38,7 +39,7 @@ func StartTimer() error {
 					jsonStr, err := utils.Struct2JsonString(utils.GoexTicker2Ticker(global.Tickers[api][symbol]))
 					if err == nil {
 						//t := time.Unix(global.Tickers[api][symbol].Date,0).Format("2006-01-02 15:04:05")
-						global.Log.Printf("%s %s\n", api, jsonStr)
+						log.Printf("%s %s\n", api, jsonStr)
 					}
 				}
 			}
@@ -65,7 +66,7 @@ func StartTimer() error {
 			if global.IsPrint {
 				jsonStr, err := utils.Struct2JsonString(utils.GoexTicker2Ticker(global.WeightMeanTickers[symbol]))
 				if err == nil {
-					global.Log.Printf("weighted mean %s\n", jsonStr)
+					log.Printf("weighted mean %s\n", jsonStr)
 				}
 			}
 		}

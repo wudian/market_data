@@ -1,7 +1,7 @@
 package models
 
 type Ticker struct {
-	Symbol string 	`json:"symbol,string"`
+	Symbol string 	`json:"symbol"`
 	Last float64      `json:"last,string"`
 	Buy  float64      `json:"buy,string"`
 	Sell float64      `json:"sell,string"`
@@ -9,4 +9,8 @@ type Ticker struct {
 	Low  float64      `json:"low,string"`
 	Vol  float64      `json:"vol,string"`
 	Date int64       `json:"date"` // 单位:秒(second)
+}
+
+type SubReq struct {
+	Symbol string 	`json:"symbol"`
 }
