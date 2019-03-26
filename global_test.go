@@ -1,7 +1,6 @@
-package wx
+package main
 
 import (
-	"encoding/json"
 	"github.com/nntaoli-project/GoEx"
 	"github.com/stretchr/testify/assert"
 	"testing"
@@ -19,8 +18,14 @@ func testSymbol(t *testing.T) {
 
 func TestApi(t *testing.T)  {
 	global := GlobalInstance()
-	ret, err := global.apis["binance"].GetTicker(goex.BTC_USDT)
-	jsonStr, err := json.Marshal(ret)
+	goexTicker, err := global.apis["binance"].GetTicker(goex.BTC_USDT)
+	jsonStr, err := Struct2JsonString(goexTicker)
+	if err == nil {
+		t.Log(string(jsonStr))
+	}
+
+	ticker := GoexTicker2Ticker(goexTicker)
+	jsonStr, err = Struct2JsonString(ticker)
 	if err == nil {
 		t.Log(string(jsonStr))
 	}

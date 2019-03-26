@@ -8,4 +8,6 @@ global = &Global{
 
 3.we use timer to get ticker from ecah exchange, then calculate weighted mean value, and write it to kafka
 
-4.Server.go privde restful server, but now not used
+4.server.go provide restful or websocket server
+
+5.models.go provide self define struct, such as Ticker

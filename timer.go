@@ -1,7 +1,6 @@
-package wx
+package main
 
 import (
-	"encoding/json"
 	"github.com/astaxie/beego/toolbox"
 	"github.com/nntaoli-project/GoEx"
 	"math"
@@ -34,10 +33,10 @@ func StartTimer() error {
 				}
 
 				if global.isPrint {
-					jsonStr, err := json.Marshal(global.tickers[api][symbol])
+					jsonStr, err := Struct2JsonString(GoexTicker2Ticker(global.tickers[api][symbol]))
 					if err == nil {
 						//t := time.Unix(global.tickers[api][symbol].Date,0).Format("2006-01-02 15:04:05")
-						global.log.Printf("%s, %s\n", api, string(jsonStr))
+						global.log.Printf("%s %s\n", api, jsonStr)
 					}
 				}
 			}
@@ -48,20 +47,23 @@ func StartTimer() error {
 		for _, symbol := range global.vecSymbols{
 			sumTicker := goex.NewTicker()
 			for _, api := range global.apiNames {
-				sumTicker.Add(global.tickers[api][symbol].Multi(global.weight[api]))
+				if global.weight[api] >0 {
+					sumTicker.Add(global.tickers[api][symbol].Multi(global.weight[api]))
+				}
+
 			}
 			sumWei := float64(0)
 			for _, wei := range global.weight{
 				sumWei += wei
 			}
 			sumTicker.Date = now_second
-			sumTicker.Pair = global.tickers[global.apiNames[0]][symbol].Pair
+			sumTicker.Pair = goex.NewCurrencyPair2(symbol)
 			global.weightMeanTickers[symbol] = sumTicker.Div(sumWei).Decimal()
 
 			if global.isPrint {
-				jsonStr, err := json.Marshal(global.weightMeanTickers[symbol])
+				jsonStr, err := Struct2JsonString(GoexTicker2Ticker(global.weightMeanTickers[symbol]))
 				if err == nil {
-					global.log.Printf("%s\n", string(jsonStr))
+					global.log.Printf("weighted mean %s\n", jsonStr)
 				}
 			}
 		}

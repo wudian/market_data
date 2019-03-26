@@ -1,4 +1,4 @@
-package wx
+package main
 
 import (
 	"github.com/nntaoli-project/GoEx"
@@ -84,7 +84,7 @@ func GlobalInstance() *Global {
 	}
 	global = &Global{
 		apiNames: []string{"huobi", "okex", "hitbtc", "binance", "bithumb"}, //,
-		vecSymbols: []string{"btc_usdt", "eth_usdt"},//
+		vecSymbols: []string{"BTC_USDT", "ETH_USDT"},//
 		duration: 10,
 		isPrint: true,
 	}
@@ -94,7 +94,7 @@ func GlobalInstance() *Global {
 	if err != nil {
 		log.Fatalf("open file %s error !\n", fileName)
 	}
-	global.log = log.New(logFile,"", log.Ltime|log.Lshortfile)
+	global.log = log.New(logFile,"", log.Ltime)
 
 	global.tickers = map[string]map[string]*goex.Ticker{}
 	for _, api := range global.apiNames{

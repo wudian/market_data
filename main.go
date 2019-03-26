@@ -1,4 +1,4 @@
-package wx
+package main
 
 func main() {
 	StartTimer()
