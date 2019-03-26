@@ -1,6 +1,11 @@
 package main
 
+import (
+	"github.com/wudian/wx/server"
+	"github.com/wudian/wx/timer"
+)
+
 func main() {
-	StartTimer()
-	StartServer()
+	timer.StartTimer()
+	server.StartServer()
 }

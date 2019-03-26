@@ -3,13 +3,16 @@ package main
 import (
 	"github.com/nntaoli-project/GoEx"
 	"github.com/stretchr/testify/assert"
+	"github.com/wudian/wx/config"
+	"github.com/wudian/wx/kafka"
+	"github.com/wudian/wx/utils"
 	"testing"
 )
 
 func testSymbol(t *testing.T) {
-	global := GlobalInstance()
-	for _, api := range global.apiNames {
-		for _, symbol := range global.vecSymbols {
+	global := config.GlobalInstance()
+	for _, api := range global.ApiNames {
+		for _, symbol := range global.VecSymbols {
 			t.Log(symbol + "->"+api+"->"+goex.NewCurrencyPair2(symbol).String())
 		}
 	}
@@ -17,21 +20,21 @@ func testSymbol(t *testing.T) {
 }
 
 func TestApi(t *testing.T)  {
-	global := GlobalInstance()
-	goexTicker, err := global.apis["binance"].GetTicker(goex.BTC_USDT)
-	jsonStr, err := Struct2JsonString(goexTicker)
+	global := config.GlobalInstance()
+	goexTicker, err := global.Apis["binance"].GetTicker(goex.BTC_USDT)
+	jsonStr, err := utils.Struct2JsonString(goexTicker)
 	if err == nil {
 		t.Log(string(jsonStr))
 	}
 
-	ticker := GoexTicker2Ticker(goexTicker)
-	jsonStr, err = Struct2JsonString(ticker)
+	ticker := utils.GoexTicker2Ticker(goexTicker)
+	jsonStr, err = utils.Struct2JsonString(ticker)
 	if err == nil {
 		t.Log(string(jsonStr))
 	}
 }
 
 func testKafka(t *testing.T)  {
-	syncProducer()
+	kafka.SyncProducer()
 	assert.Equal(t, "123", "123")
 }
