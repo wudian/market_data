@@ -90,6 +90,8 @@ func StartTimer() error {
 	tk2 := toolbox.NewTask("task2", "0/3 * * * * *", func() error {
 		rdMutex.RLock()
 		defer rdMutex.RUnlock()
+		server.MutexClients.Lock()
+		defer server.MutexClients.Unlock()
 
 		global := config.GlobalInstance()
 		for client, vecSymbols := range server.Clients{

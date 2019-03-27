@@ -7,8 +7,8 @@ global = &Global{
 		VecSymbols: []string{"BTC_USDT", "ETH_USDT"},//
 	}
 
-3.we use timer to get ticker from ecah exchange, then calculate weighted mean value, and write it to kafka
+3.we use timer(beego.toolbox.task) to get ticker from ecah exchange, then calculate weighted mean value, and use timer to write it to websocket clients or kafka
 
-4.server.go provide restful or websocket server
+4.server.go provide restful or websocket server base on beego
 
 5.models.go provide self define struct, such as Ticker

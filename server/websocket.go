@@ -68,9 +68,8 @@ func (this *MyWebSocketController) Get() {
 		}
 		symbol := strings.ToUpper(subReq.Symbol)
 		MutexClients.Lock()
-		defer MutexClients.Unlock()
 		Clients[ws] = append(Clients[ws], symbol)
-
+		MutexClients.Unlock()
 
 		//目前存在问题 定时效果不好 需要在业务代码替换时改为beego toolbox中的定时器
 		//time.Sleep(time.Second * 3)
