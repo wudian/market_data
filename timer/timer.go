@@ -77,6 +77,7 @@ func StartTimer() error {
 			}
 		}
 
+		server.SendTicker()
 		return nil
 	})
 	err = tk1.Run()
@@ -85,31 +86,6 @@ func StartTimer() error {
 	} else {
 		toolbox.AddTask("task1", tk1)
 	}
-
-	// write weighted mean ticker to websocket clients
-	tk2 := toolbox.NewTask("task2", "0/3 * * * * *", func() error {
-		rdMutex.RLock()
-		defer rdMutex.RUnlock()
-		server.MutexClients.Lock()
-		defer server.MutexClients.Unlock()
-
-		global := config.GlobalInstance()
-		for client, vecSymbols := range server.Clients{
-			for _, symbol := range vecSymbols{
-				jsonStr, err := utils.Struct2JsonString(utils.GoexTicker2Ticker(global.WeightMeanTickers[symbol]))
-				if err == nil {
-					err := client.WriteJSON(jsonStr)
-					if err != nil {
-						//log.Printf("client.WriteJSON error: %v", err)
-						server.Disconnect(client)
-					}
-				}
-			}
-		}
-
-		return nil
-	})
-	toolbox.AddTask("task2", tk2)
 
 	toolbox.StartTask()
 	//toolbox.StopTask()

@@ -1,26 +1,21 @@
 package server
 
 import (
-	"fmt"
 	"github.com/astaxie/beego"
 	"github.com/gorilla/websocket"
 	"github.com/wudian/wx/config"
 	"github.com/wudian/wx/models"
 	"github.com/wudian/wx/utils"
-	"log"
 	"net/http"
 	"strings"
 	"sync"
-	"time"
 )
 
 var (
-	Clients   = make(map[*websocket.Conn][]string)
-	MutexClients sync.Mutex
+	clients   = make(map[*websocket.Conn][]string)
+	mutexClients sync.Mutex
 
-	ticker = time.NewTicker(time.Second * 3)
-
-	broadcast = make(chan string)
+	//broadcast = make(chan string)
 	upgrader = websocket.Upgrader{
 		// 解决跨域问题
 		CheckOrigin: func(r *http.Request) bool {
@@ -34,9 +29,9 @@ type MyWebSocketController struct {
 }
 
 func Disconnect(ws *websocket.Conn) {
-	MutexClients.Lock()
-	defer MutexClients.Unlock()
-	delete(Clients, ws)
+	mutexClients.Lock()
+	defer mutexClients.Unlock()
+	delete(clients, ws)
 	ws.Close()
 }
 
@@ -52,7 +47,7 @@ func (this *MyWebSocketController) Get() {
 
 	//global := config.GlobalInstance()
 
-	Clients[ws] = []string{}
+	clients[ws] = []string{}
 	times := 0
 	//不断的广播发送到页面上
 	for {
@@ -67,9 +62,9 @@ func (this *MyWebSocketController) Get() {
 			continue
 		}
 		symbol := strings.ToUpper(subReq.Symbol)
-		MutexClients.Lock()
-		Clients[ws] = append(Clients[ws], symbol)
-		MutexClients.Unlock()
+		mutexClients.Lock()
+		clients[ws] = append(clients[ws], symbol)
+		mutexClients.Unlock()
 
 		//目前存在问题 定时效果不好 需要在业务代码替换时改为beego toolbox中的定时器
 		//time.Sleep(time.Second * 3)
@@ -88,28 +83,21 @@ func InitWebsocket() {
 	// {"symbol":"btc_usdt"}
 	beego.Router("/ws", &MyWebSocketController{})
 
-	//go handleMessages()
-	//go sendTicker()
 }
 
-func sendTicker() {
+// write weighted mean ticker to websocket clients
+func SendTicker() {
 	global := config.GlobalInstance()
-	for {
-		select {
-		case <-ticker.C:
-			//fmt.Printf("ticked at %v\n", time.Now())
-			//MutexClients.Lock()
-			//defer MutexClients.Unlock()
-			for client, vecSymbols := range Clients{
-				for _, symbol := range vecSymbols{
-					jsonStr, err := utils.Struct2JsonString(utils.GoexTicker2Ticker(global.WeightMeanTickers[symbol]))
-					if err == nil {
-						err := client.WriteJSON(jsonStr)
-						if err != nil {
-							//log.Printf("client.WriteJSON error: %v", err)
-							Disconnect(client)
-						}
-					}
+	mutexClients.Lock()
+	defer mutexClients.Unlock()
+	for client, vecSymbols := range clients{
+		for _, symbol := range vecSymbols{
+			jsonStr, err := utils.Struct2JsonString(utils.GoexTicker2Ticker(global.WeightMeanTickers[symbol]))
+			if err == nil {
+				err := client.WriteJSON(jsonStr)
+				if err != nil {
+					//log.Printf("client.WriteJSON error: %v", err)
+					Disconnect(client)
 				}
 			}
 		}
@@ -117,17 +105,17 @@ func sendTicker() {
 }
 
 //广播发送至页面
-func handleMessages() {
-	for {
-		msg := <-broadcast
-		fmt.Println("Clients len ", len(Clients))
-		for client := range Clients {
-			err := client.WriteJSON(msg)
-			if err != nil {
-				log.Printf("client.WriteJSON error: %v", err)
-				client.Close()
-				delete(Clients, client)
-			}
-		}
-	}
-}
+//func handleMessages() {
+//	for {
+//		msg := <-broadcast
+//		fmt.Println("clients len ", len(clients))
+//		for client := range clients {
+//			err := client.WriteJSON(msg)
+//			if err != nil {
+//				log.Printf("client.WriteJSON error: %v", err)
+//				client.Close()
+//				delete(clients, client)
+//			}
+//		}
+//	}
+//}
