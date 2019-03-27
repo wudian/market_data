@@ -83,7 +83,8 @@ func GlobalInstance() *Global {
 		return global
 	}
 	global = &Global{
-		ApiNames: []string{"huobi", "okex", "hitbtc", "binance", "bithumb"}, //exchange
+		// "binance",
+		ApiNames: []string{"huobi", "okex", "hitbtc", "bithumb"}, //exchange
 		VecSymbols: []string{"BTC_USDT", "ETH_USDT"},//
 		Duration: 10,
 		IsPrint: true,

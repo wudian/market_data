@@ -4,9 +4,11 @@ import (
 	"github.com/astaxie/beego/toolbox"
 	"github.com/nntaoli-project/GoEx"
 	"github.com/wudian/wx/config"
+	"github.com/wudian/wx/server"
 	"github.com/wudian/wx/utils"
 	"log"
 	"math"
+	"sync"
 	"time"
 )
 
@@ -14,8 +16,12 @@ func StartTimer() error {
 	var (
 		err error
 		global = config.GlobalInstance()
+		// we need a lock to protect global.Tickers and global.WeightMeanTickers
+		rdMutex sync.RWMutex
 	)
-	tk := toolbox.NewTask("task", "0/5 * * * * *", func() error {
+	tk1 := toolbox.NewTask("task1", "0/5 * * * * *", func() error {
+		rdMutex.Lock()
+		defer rdMutex.Unlock()
 
 		now_second := time.Now().Unix()
 		tmp_weight := global.Weight
@@ -73,12 +79,36 @@ func StartTimer() error {
 
 		return nil
 	})
-	err = tk.Run()
+	err = tk1.Run()
 	if err != nil {
 		return err
 	} else {
-		toolbox.AddTask("task", tk)
+		toolbox.AddTask("task1", tk1)
 	}
+
+	// write weighted mean ticker to websocket clients
+	tk2 := toolbox.NewTask("task2", "0/3 * * * * *", func() error {
+		rdMutex.RLock()
+		defer rdMutex.RUnlock()
+
+		global := config.GlobalInstance()
+		for client, vecSymbols := range server.Clients{
+			for _, symbol := range vecSymbols{
+				jsonStr, err := utils.Struct2JsonString(utils.GoexTicker2Ticker(global.WeightMeanTickers[symbol]))
+				if err == nil {
+					err := client.WriteJSON(jsonStr)
+					if err != nil {
+						//log.Printf("client.WriteJSON error: %v", err)
+						server.Disconnect(client)
+					}
+				}
+			}
+		}
+
+		return nil
+	})
+	toolbox.AddTask("task2", tk2)
+
 	toolbox.StartTask()
 	//toolbox.StopTask()
 	return nil

@@ -15,8 +15,8 @@ import (
 )
 
 var (
-	clients   = make(map[*websocket.Conn][]string)
-	mutexClients sync.Mutex
+	Clients   = make(map[*websocket.Conn][]string)
+	MutexClients sync.Mutex
 
 	ticker = time.NewTicker(time.Second * 3)
 
@@ -33,10 +33,10 @@ type MyWebSocketController struct {
 	beego.Controller
 }
 
-func disconnect(ws *websocket.Conn) {
-	mutexClients.Lock()
-	defer mutexClients.Unlock()
-	delete(clients, ws)
+func Disconnect(ws *websocket.Conn) {
+	MutexClients.Lock()
+	defer MutexClients.Unlock()
+	delete(Clients, ws)
 	ws.Close()
 }
 
@@ -48,11 +48,11 @@ func (this *MyWebSocketController) Get() {
 		this.Ctx.WriteString(err.Error())
 		return
 	}
-	defer disconnect(ws)
+	defer Disconnect(ws)
 
 	//global := config.GlobalInstance()
 
-	clients[ws] = []string{}
+	Clients[ws] = []string{}
 	times := 0
 	//不断的广播发送到页面上
 	for {
@@ -67,9 +67,9 @@ func (this *MyWebSocketController) Get() {
 			continue
 		}
 		symbol := strings.ToUpper(subReq.Symbol)
-		mutexClients.Lock()
-		defer mutexClients.Unlock()
-		clients[ws] = append(clients[ws], symbol)
+		MutexClients.Lock()
+		defer MutexClients.Unlock()
+		Clients[ws] = append(Clients[ws], symbol)
 
 
 		//目前存在问题 定时效果不好 需要在业务代码替换时改为beego toolbox中的定时器
@@ -85,11 +85,12 @@ func (this *MyWebSocketController) Get() {
 }
 
 func InitWebsocket() {
-	//ws://127.0.0.1:8080/ws
+	// ws://127.0.0.1:8080/ws
+	// {"symbol":"btc_usdt"}
 	beego.Router("/ws", &MyWebSocketController{})
 
 	//go handleMessages()
-	go sendTicker()
+	//go sendTicker()
 }
 
 func sendTicker() {
@@ -98,16 +99,16 @@ func sendTicker() {
 		select {
 		case <-ticker.C:
 			//fmt.Printf("ticked at %v\n", time.Now())
-			//mutexClients.Lock()
-			//defer mutexClients.Unlock()
-			for client, vecSymbols := range clients{
+			//MutexClients.Lock()
+			//defer MutexClients.Unlock()
+			for client, vecSymbols := range Clients{
 				for _, symbol := range vecSymbols{
 					jsonStr, err := utils.Struct2JsonString(utils.GoexTicker2Ticker(global.WeightMeanTickers[symbol]))
 					if err == nil {
 						err := client.WriteJSON(jsonStr)
 						if err != nil {
 							//log.Printf("client.WriteJSON error: %v", err)
-							disconnect(client)
+							Disconnect(client)
 						}
 					}
 				}
@@ -120,13 +121,13 @@ func sendTicker() {
 func handleMessages() {
 	for {
 		msg := <-broadcast
-		fmt.Println("clients len ", len(clients))
-		for client := range clients {
+		fmt.Println("Clients len ", len(Clients))
+		for client := range Clients {
 			err := client.WriteJSON(msg)
 			if err != nil {
 				log.Printf("client.WriteJSON error: %v", err)
 				client.Close()
-				delete(clients, client)
+				delete(Clients, client)
 			}
 		}
 	}
