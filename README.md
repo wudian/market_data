@@ -1,3 +1,6 @@
+0.set http_proxy=http://127.0.0.1:55304  https_proxy=http://127.0.0.1:55304
+
+
 1.version1 and version2 is previous version, they are not be used
 
 2.config.go

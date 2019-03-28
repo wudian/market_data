@@ -6,7 +6,6 @@ import (
 	"github.com/wudian/wx/config"
 	"github.com/wudian/wx/server"
 	"github.com/wudian/wx/utils"
-	"log"
 	"math"
 	"sync"
 	"time"
@@ -24,7 +23,7 @@ func StartTimer() error {
 		defer rdMutex.Unlock()
 
 		now_second := time.Now().Unix()
-		tmp_weight := global.Weight
+		tmp_weight := utils.DeepCopy(global.Weight).(map[string]float64)
 		for _, api := range global.ApiNames {
 			for _, symbol := range global.VecSymbols {
 				pair := goex.NewCurrencyPair2(symbol)
@@ -45,7 +44,7 @@ func StartTimer() error {
 					jsonStr, err := utils.Struct2JsonString(utils.GoexTicker2Ticker(global.Tickers[api][symbol]))
 					if err == nil {
 						//t := time.Unix(global.Tickers[api][symbol].Date,0).Format("2006-01-02 15:04:05")
-						log.Printf("%s %s\n", api, jsonStr)
+						global.Log.Printf("%s %s\n", api, jsonStr)
 					}
 				}
 			}
@@ -56,14 +55,17 @@ func StartTimer() error {
 		for _, symbol := range global.VecSymbols{
 			sumTicker := goex.NewTicker()
 			for _, api := range global.ApiNames {
-				if global.Weight[api] >0 {
-					sumTicker.Add(global.Tickers[api][symbol].Multi(global.Weight[api]))
+				if tmp_weight[api] >0 {
+					sumTicker.Add(global.Tickers[api][symbol].Multi(tmp_weight[api]))
 				}
 
 			}
 			sumWei := float64(0)
-			for _, wei := range global.Weight{
+			for _, wei := range tmp_weight{
 				sumWei += wei
+			}
+			if sumWei == float64(0){
+				break
 			}
 			sumTicker.Date = now_second
 			sumTicker.Pair = goex.NewCurrencyPair2(symbol)
@@ -72,7 +74,7 @@ func StartTimer() error {
 			if global.IsPrint {
 				jsonStr, err := utils.Struct2JsonString(utils.GoexTicker2Ticker(global.WeightMeanTickers[symbol]))
 				if err == nil {
-					log.Printf("weighted mean %s\n", jsonStr)
+					global.Log.Printf("weighted mean %s\n", jsonStr)
 				}
 			}
 		}

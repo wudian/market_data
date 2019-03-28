@@ -24,7 +24,7 @@ func GoexTicker2Ticker(goexTick *goex.Ticker) *models.Ticker {
 		goexTick = goex.NewTicker()
 	}
 	ticker := &models.Ticker{
-		Symbol: goexTick.Pair.ToSymbol("_"),
+		Symbol: goexTick.Pair.ToSymbol("-"),
 		Last: goexTick.Last,
 		Buy: goexTick.Buy,
 		Sell: goexTick.Sell,
@@ -34,4 +34,32 @@ func GoexTicker2Ticker(goexTick *goex.Ticker) *models.Ticker {
 		Date: goexTick.Date,
 	}
 	return ticker
+}
+
+
+func DeepCopy(value interface{}) interface{} {
+	if valueMap, ok := value.(map[string]interface{}); ok {
+		newMap := make(map[string]interface{})
+		for k, v := range valueMap {
+			newMap[k] = DeepCopy(v)
+		}
+
+		return newMap
+	} else if valueSlice, ok := value.([]interface{}); ok {
+		newSlice := make([]interface{}, len(valueSlice))
+		for k, v := range valueSlice {
+			newSlice[k] = DeepCopy(v)
+		}
+
+		return newSlice
+	} else if valueSlice, ok := value.(map[string]float64); ok {
+		newSlice := make(map[string]float64)
+		for k, v := range valueSlice {
+			newSlice[k] = v
+		}
+
+		return newSlice
+	}
+
+	return value
 }

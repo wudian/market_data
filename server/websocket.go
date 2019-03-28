@@ -98,7 +98,11 @@ func SendTicker() {
 				if err != nil {
 					//log.Printf("client.WriteJSON error: %v", err)
 					Disconnect(client)
+					return
 				}
+			} else {
+				Disconnect(client)
+				return
 			}
 		}
 	}
