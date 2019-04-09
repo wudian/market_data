@@ -16,12 +16,15 @@ import (
 	"time"
 )
 
-//const (
-//	HUOBI = 0
-//	OKEX = 1
-//
-//	APINUM = 5
-//)
+const (
+	// "binance", "bithumb"  "huobi", , "hitbtc"
+	API_HASHKEY = "hashkey"
+	API_HUOBI = "huobi"
+	API_OKEX = "okex"
+	API_BINANCE = "binance"
+	API_HITBTC = "hitbtc"
+	API_BITHUMB = "bithumb"
+)
 
 var httpProxyClient = &http.Client{
 	Transport: &http.Transport{
@@ -72,6 +75,7 @@ type Global struct {
 	Duration uint64 // duration between api.date and local, out of range is invalid
 	IsPrint bool // whether print log
 	Log *log.Logger
+	IsStoreData bool
 }
 
 var global *Global
@@ -83,11 +87,12 @@ func GlobalInstance() *Global {
 		return global
 	}
 	global = &Global{
-		// "binance", "bithumb"
-		ApiNames: []string{"huobi", "okex", "hitbtc"}, //exchange
-		VecSymbols: []string{"BTC-USDT", "ETH-USDT"},//
+		// "binance", "bithumb"   "huobi",
+		ApiNames: []string{API_OKEX, API_HITBTC, API_BINANCE}, //exchange
+		VecSymbols: []string{"BTC-USDT", "ETH-USDT", "ETH-BTC"},//
 		Duration: 10,
 		IsPrint: true,
+		IsStoreData: true,
 	}
 	fileName := "wx.log"
 	logFile,err  := os.Create(fileName)
@@ -105,19 +110,19 @@ func GlobalInstance() *Global {
 	global.Weight = map[string]float64{}
 	global.Apis = map[string]goex.API{}
 	for _, api := range global.ApiNames{
-		if api == "huobi"{
+		if api == API_HUOBI{
 			global.Weight[api] = 1
 			global.Apis[api] = huobi.NewHuoBiProSpot(httpProxyClient, apikey_huobi, secretkey_huobi)
-		} else if api == "okex"{
+		} else if api == API_OKEX{
 			global.Weight[api] = 1
 			global.Apis[api] = okcoin.NewOKExSpot(http.DefaultClient, apikey_okex, secretkey_okex)
-		} else if api == "hitbtc"{
+		} else if api == API_HITBTC{
 			global.Weight[api] = 1
 			global.Apis[api] = hitbtc.New(http.DefaultClient, apikey_hitbtc, secretkey_hitbtc)
-		} else if api == "binance"{
+		} else if api == API_BINANCE{
 			global.Weight[api] = 1
 			global.Apis[api] = binance.New(http.DefaultClient, apikey_binance, secretkey_binance)
-		} else if api == "bithumb"{
+		} else if api == API_BITHUMB{
 			global.Weight[api] = 0
 			global.Apis[api] = bithumb.New(http.DefaultClient, apikey_bithumb, secretkey_bithumb)
 		} else {

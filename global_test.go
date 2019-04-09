@@ -5,6 +5,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/wudian/wx/config"
 	"github.com/wudian/wx/kafka"
+	"github.com/wudian/wx/mongo"
 	"github.com/wudian/wx/utils"
 	"testing"
 )
@@ -21,16 +22,22 @@ func testSymbol(t *testing.T) {
 
 func TestApi(t *testing.T)  {
 	global := config.GlobalInstance()
-	goexTicker, err := global.Apis["binance"].GetTicker(goex.BTC_USDT)
+	pair := goex.NewCurrencyPair2("ETH-BTC")
+	goexTicker, err := global.Apis[config.API_OKEX].GetTicker(pair)
 	jsonStr, err := utils.Struct2JsonString(goexTicker)
 	if err == nil {
 		t.Log(string(jsonStr))
 	}
 
-	ticker := utils.GoexTicker2Ticker(goexTicker)
+	ticker := utils.GoexTicker2Ticker(goexTicker, config.API_OKEX)
 	jsonStr, err = utils.Struct2JsonString(ticker)
 	if err == nil {
 		t.Log(string(jsonStr))
+	}
+
+	client, err := mongo.NewMgoClient()
+	if err==nil{
+		client.Insert(ticker)
 	}
 }
 
@@ -38,3 +45,4 @@ func testKafka(t *testing.T)  {
 	kafka.SyncProducer()
 	assert.Equal(t, "123", "123")
 }
+

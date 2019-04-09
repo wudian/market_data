@@ -92,7 +92,7 @@ func SendTicker() {
 	defer mutexClients.Unlock()
 	for client, vecSymbols := range clients{
 		for _, symbol := range vecSymbols{
-			jsonStr, err := utils.Struct2JsonString(utils.GoexTicker2Ticker(global.WeightMeanTickers[symbol]))
+			jsonStr, err := utils.Struct2JsonString(utils.GoexTicker2Ticker(global.WeightMeanTickers[symbol], config.API_HASHKEY))
 			if err == nil {
 				err := client.WriteJSON(jsonStr)
 				if err != nil {

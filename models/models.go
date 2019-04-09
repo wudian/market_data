@@ -1,6 +1,7 @@
 package models
 
 type Ticker struct {
+	Api	string		`json:"api"`
 	Symbol string 	`json:"symbol"`
 	Last float64      `json:"last,string"`
 	Buy  float64      `json:"buy,string"`

@@ -4,6 +4,7 @@ import (
 	"github.com/astaxie/beego/toolbox"
 	"github.com/nntaoli-project/GoEx"
 	"github.com/wudian/wx/config"
+	"github.com/wudian/wx/mongo"
 	"github.com/wudian/wx/server"
 	"github.com/wudian/wx/utils"
 	"log"
@@ -12,63 +13,86 @@ import (
 	"time"
 )
 
-func StartTimer() error {
-	var (
-		err error
-		global = config.GlobalInstance()
-		// we need a lock to protect global.Tickers and global.WeightMeanTickers
-		rdMutex sync.RWMutex
-	)
-	tk1 := toolbox.NewTask("task1", "0/1 * * * * *", func() error {
+var (
+	err error
+	global = config.GlobalInstance()
+	// we need a lock to protect global.Tickers and global.WeightMeanTickers
+	rdMutex sync.RWMutex
+	// api -> weight
+	tmpWeight = map[string]float64{}
+	nowSecond int64
+	mgoClient mongo.MgoClient
+)
+
+func GetTicker(api, symbol string)  {
+	for{
+		time.Sleep(2*time.Second)
+		nowSecond = time.Now().Unix()
+		pair := goex.NewCurrencyPair2(symbol)
+		ticker, err := global.Apis[api].GetTicker(pair)
 		rdMutex.Lock()
-		defer rdMutex.Unlock()
-
-		now_second := time.Now().Unix()
-		tmp_weight := utils.DeepCopy(global.Weight).(map[string]float64)
-		for _, api := range global.ApiNames {
-			for _, symbol := range global.VecSymbols {
-				pair := goex.NewCurrencyPair2(symbol)
-				global.Tickers[api][symbol], err = global.Apis[api].GetTicker(pair)
-
-				if err != nil {
-					tmp_weight[api] = 0
-					continue
-				} else {
-					dura := uint64(math.Abs(float64(global.Tickers[api][symbol].Date-now_second)))
-					if dura>global.Duration{
-						tmp_weight[api] = 0
-						continue
-					}
-				}
-
-				if global.IsPrint {
-					jsonStr, err := utils.Struct2JsonString(utils.GoexTicker2Ticker(global.Tickers[api][symbol]))
-					if err == nil {
-						//t := time.Unix(global.Tickers[api][symbol].Date,0).Format("2006-01-02 15:04:05")
-						log.Printf("%s %s\n", api, jsonStr)
-					}
-				}
+		if err != nil {
+			tmpWeight[api] = 0
+		} else {
+			dura := uint64(math.Abs(float64(ticker.Date-nowSecond)))
+			if dura>global.Duration{
+				tmpWeight[api] = 0
+			} else{
+				tmpWeight[api] = global.Weight[api]
+				global.Tickers[api][symbol] = ticker
 			}
 		}
+		rdMutex.Unlock()
+		myTicker := utils.GoexTicker2Ticker(ticker, api)
+		if global.IsStoreData && err==nil{
+			mgoClient.Insert(myTicker)
+		}
+		if global.IsPrint && err==nil {
+			jsonStr, err := utils.Struct2JsonString(myTicker)
+			if err == nil {
+				//t := time.Unix(global.Tickers[api][symbol].Date,0).Format("2006-01-02 15:04:05")
+				log.Printf("%s %s\n", api, jsonStr)
+			}
+		}
+	}
 
+}
+
+func StartTimer() error {
+	mgoClient, err = mongo.NewMgoClient()
+	if err!=nil{
+		log.Println(err.Error())
+		return nil
+	}
+	for _, api := range global.ApiNames {
+		for _, symbol := range global.VecSymbols {
+			go GetTicker(api, symbol)
+		}
+	}
+
+
+	tk1 := toolbox.NewTask("task1", "0/1 * * * * *", func() error {
+		rdMutex.RLock()
+		defer rdMutex.RUnlock()
+/*
 		global.MutexWeightMeanTickers.Lock()
 		defer global.MutexWeightMeanTickers.Unlock()
 		for _, symbol := range global.VecSymbols{
 			sumTicker := goex.NewTicker()
 			for _, api := range global.ApiNames {
-				if tmp_weight[api] >0 {
-					sumTicker.Add(global.Tickers[api][symbol].Multi(tmp_weight[api]))
+				if tmpWeight[api] >0 {
+					sumTicker.Add(global.Tickers[api][symbol].Multi(tmpWeight[api]))
 				}
 
 			}
 			sumWei := float64(0)
-			for _, wei := range tmp_weight{
+			for _, wei := range tmpWeight{
 				sumWei += wei
 			}
 			if sumWei == float64(0){
 				break
 			}
-			sumTicker.Date = now_second
+			sumTicker.Date = nowSecond
 			sumTicker.Pair = goex.NewCurrencyPair2(symbol)
 			global.WeightMeanTickers[symbol] = sumTicker.Div(sumWei).Decimal()
 
@@ -80,6 +104,7 @@ func StartTimer() error {
 			}
 		}
 
+*/
 		server.SendTicker()
 		return nil
 	})
