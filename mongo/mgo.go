@@ -6,7 +6,7 @@ import (
 )
 
 const (
-	mgoUrl = "localhost:27017"
+	mgoUrl = "127.0.0.1:27017"
 	dbName = "wx"
 	tableName = "ticker"
 )

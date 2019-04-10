@@ -14,8 +14,8 @@ type MainController struct {
 func (this *MainController) Get() {
 	global := config.GlobalInstance()
 	symbol := strings.ToUpper(this.GetString("symbol"))
-	global.MutexWeightMeanTickers.Lock()
-	defer global.MutexWeightMeanTickers.Unlock()
+	global.RdMutex.RLock()
+	defer global.RdMutex.RUnlock()
 	jsonStr, err := utils.Struct2JsonString(utils.GoexTicker2Ticker(global.WeightMeanTickers[symbol], config.API_HASHKEY))
 	if err == nil {
 		this.Ctx.WriteString(jsonStr)

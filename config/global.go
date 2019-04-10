@@ -67,7 +67,9 @@ type Global struct {
 	Weight map[string]float64
 	// weighted mean , symbol -> Ticker
 	WeightMeanTickers map[string]*goex.Ticker
-	MutexWeightMeanTickers sync.Mutex
+
+	// we need a lock to protect global.Tickers and global.WeightMeanTickers
+	RdMutex sync.RWMutex
 
 	//api_name -> api
 	Apis map[string]goex.API
