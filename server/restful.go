@@ -23,7 +23,6 @@ func (this *MainController) Get() {
 }
 
 func StartServer()  {
-	// http://127.0.0.1:8080/market/ticker/?symbol=btc_usdt
 	beego.Router("/market/ticker", &MainController{})
 
 	InitWebsocket()

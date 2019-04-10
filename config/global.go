@@ -7,11 +7,9 @@ import (
 	"github.com/nntaoli-project/GoEx/hitbtc"
 	"github.com/nntaoli-project/GoEx/huobi"
 	"github.com/nntaoli-project/GoEx/okcoin"
-	"log"
 	"net"
 	"net/http"
 	"net/url"
-	"os"
 	"sync"
 	"time"
 )
@@ -75,8 +73,6 @@ type Global struct {
 	Apis map[string]goex.API
 
 	Duration uint64 // duration between api.date and local, out of range is invalid
-	IsPrint bool // whether print log
-	Log *log.Logger
 	IsStoreData bool
 }
 
@@ -93,16 +89,8 @@ func GlobalInstance() *Global {
 		ApiNames: []string{API_OKEX, API_HITBTC, API_BINANCE}, //exchange
 		VecSymbols: []string{"BTC-USDT", "ETH-USDT", "ETH-BTC"},//
 		Duration: 10,
-		IsPrint: true,
 		IsStoreData: true,
 	}
-	fileName := "wx.log"
-	logFile,err  := os.Create(fileName)
-	//defer logFile.Close()
-	if err != nil {
-		log.Fatalf("open file %s error !\n", fileName)
-	}
-	global.Log = log.New(logFile,"", log.Ltime)
 
 	global.Tickers = map[string]map[string]*goex.Ticker{}
 	for _, api := range global.ApiNames{

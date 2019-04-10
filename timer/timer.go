@@ -3,11 +3,11 @@ package timer
 import (
 	"github.com/astaxie/beego/toolbox"
 	"github.com/nntaoli-project/GoEx"
+	"github.com/wonderivan/logger"
 	"github.com/wudian/wx/config"
 	"github.com/wudian/wx/mongo"
 	"github.com/wudian/wx/server"
 	"github.com/wudian/wx/utils"
-	"log"
 	"math"
 	"time"
 )
@@ -30,13 +30,13 @@ func GetTicker(api, symbol string) {
 		global.RdMutex.Lock()
 		if err != nil {
 			tmpWeight[api] = 0
-			global.Log.Println(err.Error())
+			logger.Warn("api:%s symbol:%s ", api, symbol, err.Error())
 		} else {
 			dura := uint64(math.Abs(float64(ticker.Date - nowSecond)))
 			if dura > global.Duration {
 				tmpWeight[api] = 0
-				t := time.Unix(nowSecond,0).Format("2006-01-02 15:04:05")
-				global.Log.Printf("dura: %d, time:%s\n", dura, t)
+				//t := time.Unix(nowSecond,0).Format("2006-01-02 15:04:05")
+				logger.Warn("api:%s symbol:%s dura:%d", api, symbol, dura)
 			} else {
 				tmpWeight[api] = global.Weight[api]
 				global.Tickers[api][symbol] = ticker
@@ -47,10 +47,10 @@ func GetTicker(api, symbol string) {
 		if global.IsStoreData && err == nil {
 			mgoClient.Insert(myTicker)
 		}
-		if global.IsPrint && err == nil {
+		if err == nil {
 			jsonStr, err := utils.Struct2JsonString(myTicker)
 			if err == nil {
-				log.Println(jsonStr)
+				logger.Trace(jsonStr)
 			}
 		}
 	}
@@ -60,7 +60,7 @@ func GetTicker(api, symbol string) {
 func StartTimer() error {
 	mgoClient, err = mongo.NewMgoClient()
 	if err != nil {
-		log.Println(err.Error())
+		logger.Alert(err.Error())
 		return nil
 	}
 	for _, api := range global.ApiNames {
@@ -79,7 +79,6 @@ func StartTimer() error {
 				if tmpWeight[api] >0 {
 					sumTicker.Add(global.Tickers[api][symbol].Multi(tmpWeight[api]))
 				}
-
 			}
 			sumWei := float64(0)
 			for _, wei := range tmpWeight{
@@ -92,11 +91,9 @@ func StartTimer() error {
 			sumTicker.Pair = goex.NewCurrencyPair2(symbol)
 			global.WeightMeanTickers[symbol] = sumTicker.Div(sumWei).Decimal()
 
-			if global.IsPrint {
-				jsonStr, err := utils.Struct2JsonString(utils.GoexTicker2Ticker(global.WeightMeanTickers[symbol], config.API_HASHKEY))
-				if err == nil {
-					log.Printf("weighted mean %s\n", jsonStr)
-				}
+			jsonStr, err := utils.Struct2JsonString(utils.GoexTicker2Ticker(global.WeightMeanTickers[symbol], config.API_HASHKEY))
+			if err == nil {
+				logger.Trace("weighted mean %s\n", jsonStr)
 			}
 		}
 
