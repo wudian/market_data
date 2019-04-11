@@ -2,8 +2,8 @@ package server
 
 import (
 	"github.com/astaxie/beego"
-	"github.com/wudian/wx/config"
-	"github.com/wudian/wx/utils"
+	"github.com/wudian/market_data/config"
+	"github.com/wudian/market_data/utils"
 	"strings"
 )
 

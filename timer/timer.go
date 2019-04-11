@@ -4,10 +4,10 @@ import (
 	"github.com/astaxie/beego/toolbox"
 	"github.com/nntaoli-project/GoEx"
 	"github.com/wonderivan/logger"
-	"github.com/wudian/wx/config"
-	"github.com/wudian/wx/mongo"
-	"github.com/wudian/wx/server"
-	"github.com/wudian/wx/utils"
+	"github.com/wudian/market_data/config"
+	"github.com/wudian/market_data/mongo"
+	"github.com/wudian/market_data/server"
+	"github.com/wudian/market_data/utils"
 	"math"
 	"time"
 )
@@ -23,14 +23,14 @@ var (
 
 func GetTicker(api, symbol string) {
 	for {
-		//time.Sleep(1*time.Second)
+		time.Sleep(1*time.Second)
 		nowSecond = time.Now().Unix()
 		pair := goex.NewCurrencyPair2(symbol)
 		ticker, err := global.Apis[api].GetTicker(pair)
 		global.RdMutex.Lock()
 		if err != nil {
 			tmpWeight[api] = 0
-			logger.Warn("api:%s symbol:%s ", api, symbol, err.Error())
+			logger.Warn("api:%s symbol:%s %s", api, symbol, err.Error())
 		} else {
 			dura := uint64(math.Abs(float64(ticker.Date - nowSecond)))
 			if dura > global.Duration {
@@ -58,17 +58,21 @@ func GetTicker(api, symbol string) {
 }
 
 func StartTimer() error {
-	mgoClient, err = mongo.NewMgoClient()
-	if err != nil {
-		logger.Alert(err.Error())
-		return nil
+	if global.IsStoreData{
+		mgoClient, err = mongo.NewMgoClient()
+		if err != nil {
+			logger.Alert(err.Error())
+			return nil
+		}
 	}
+
 	for _, api := range global.ApiNames {
 		for _, symbol := range global.VecSymbols {
 			go GetTicker(api, symbol)
 		}
 	}
 
+	time.Sleep(10*time.Second)
 	tk1 := toolbox.NewTask("task1", "0/1 * * * * *", func() error {
 		global.RdMutex.Lock()
 		defer global.RdMutex.Unlock()
@@ -93,7 +97,7 @@ func StartTimer() error {
 
 			jsonStr, err := utils.Struct2JsonString(utils.GoexTicker2Ticker(global.WeightMeanTickers[symbol], config.API_HASHKEY))
 			if err == nil {
-				logger.Trace("weighted mean %s\n", jsonStr)
+				logger.Trace("weighted mean %s", jsonStr)
 			}
 		}
 

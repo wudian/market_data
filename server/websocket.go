@@ -3,9 +3,9 @@ package server
 import (
 	"github.com/astaxie/beego"
 	"github.com/gorilla/websocket"
-	"github.com/wudian/wx/config"
-	"github.com/wudian/wx/models"
-	"github.com/wudian/wx/utils"
+	"github.com/wudian/market_data/config"
+	"github.com/wudian/market_data/models"
+	"github.com/wudian/market_data/utils"
 	"net/http"
 	"strings"
 	"sync"
@@ -92,9 +92,10 @@ func SendTicker() {
 	defer mutexClients.Unlock()
 	for client, vecSymbols := range clients{
 		for _, symbol := range vecSymbols{
-			jsonStr, err := utils.Struct2JsonString(utils.GoexTicker2Ticker(global.WeightMeanTickers[symbol], config.API_HASHKEY))
+			//jsonStr, err := utils.Struct2JsonString(utils.GoexTicker2Ticker(global.WeightMeanTickers[symbol], config.API_HASHKEY))
+			jsonStr, err := utils.Struct2JsonBytes(utils.GoexTicker2Ticker(global.WeightMeanTickers[symbol], config.API_HASHKEY))
 			if err == nil {
-				err := client.WriteJSON(jsonStr)
+				err := client.WriteMessage(websocket.TextMessage, jsonStr)
 				if err != nil {
 					//log.Printf("client.WriteJSON error: %v", err)
 					Disconnect(client)

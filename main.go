@@ -2,8 +2,8 @@ package main
 
 import (
 	"github.com/wonderivan/logger"
-	"github.com/wudian/wx/server"
-	"github.com/wudian/wx/timer"
+	"github.com/wudian/market_data/server"
+	"github.com/wudian/market_data/timer"
 )
 
 //`{
@@ -35,15 +35,15 @@ var (
 	logCfg = `{
 	"TimeFormat":"2006-01-02 15:04:05", 
 	"Console": {           
-		"level": "DEBG",  
+		"level": "TRAC",  
 		"color": true       
 	},
 	"File": {                   
-		"filename": "wx.log", 
+		"filename": "market_data.log", 
 			"level": "WARN",        
 			"daily": true,         
 			"maxlines": 1000000,   
-			"maxsize": 1,          
+			"maxsize": 10,          
 			"maxdays": -1,          
 			"append": true,        
 			"permit": "0660"        

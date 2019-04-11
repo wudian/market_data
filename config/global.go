@@ -86,10 +86,10 @@ func GlobalInstance() *Global {
 	}
 	global = &Global{
 		// "binance", "bithumb"   "huobi",
-		ApiNames: []string{API_OKEX, API_HITBTC, API_BINANCE}, //exchange
+		ApiNames: []string{API_OKEX, API_HITBTC, API_HUOBI}, //exchange
 		VecSymbols: []string{"BTC-USDT", "ETH-USDT", "ETH-BTC"},//
 		Duration: 10,
-		IsStoreData: true,
+		IsStoreData: false,
 	}
 
 	global.Tickers = map[string]map[string]*goex.Ticker{}
@@ -102,7 +102,7 @@ func GlobalInstance() *Global {
 	for _, api := range global.ApiNames{
 		if api == API_HUOBI{
 			global.Weight[api] = 1
-			global.Apis[api] = huobi.NewHuoBiProSpot(httpProxyClient, apikey_huobi, secretkey_huobi)
+			global.Apis[api] = huobi.NewHuoBiProSpot(http.DefaultClient, apikey_huobi, secretkey_huobi)
 		} else if api == API_OKEX{
 			global.Weight[api] = 1
 			global.Apis[api] = okcoin.NewOKExSpot(http.DefaultClient, apikey_okex, secretkey_okex)

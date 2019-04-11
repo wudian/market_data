@@ -1,7 +1,7 @@
 package mongo
 
 import (
-	"github.com/wudian/wx/models"
+	"github.com/wudian/market_data/models"
 	"gopkg.in/mgo.v2"
 )
 

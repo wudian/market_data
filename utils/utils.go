@@ -3,7 +3,7 @@ package utils
 import (
 	"encoding/json"
 	"github.com/nntaoli-project/GoEx"
-	"github.com/wudian/wx/models"
+	"github.com/wudian/market_data/models"
 )
 
 
@@ -17,6 +17,14 @@ func Struct2JsonString(structt interface{}) (jsonString string, err error) {
 		return "", err
 	}
 	return string(data), nil
+}
+
+func Struct2JsonBytes(structt interface{}) (jsonBytes []byte, err error) {
+	data, err := json.Marshal(structt)
+	if err != nil {
+		return nil, err
+	}
+	return data, nil
 }
 
 func GoexTicker2Ticker(goexTick *goex.Ticker, api string) *models.Ticker {
