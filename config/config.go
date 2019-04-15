@@ -2,10 +2,10 @@ package config
 
 import (
 	"encoding/xml"
-	"fmt"
 	"github.com/wudian/market_data/mongo"
 	"io/ioutil"
 	"os"
+	"strings"
 )
 
 type SConfig struct {
@@ -19,12 +19,12 @@ type SConfig struct {
 }
 
 type SApiNames struct {
+	Names string `xml:"names,attr"`
 	Api []SApi `xml:"api"`
 }
 
 type SApi struct {
 	Name string `xml:"name"`
-	Use string `xml:"use"`
 	Url string `xml:"url"`
 }
 
@@ -32,6 +32,7 @@ type SVecSymbols struct {
 	Symbol []string `xml:"symbol"`
 }
 type SMongo struct {
+	Use string  `xml:"use,attr"`
 	MgoUrl string `xml:"mgoUrl"`
 	DbName string `xml:"dbName"`
 	TableName string `xml:"tableName"`
@@ -39,19 +40,19 @@ type SMongo struct {
 func readXml() (*SConfig, error) {
 	file, err := os.Open("market_data.xml") // For read access.
 	if err != nil {
-		fmt.Printf("error: %v", err)
+		//fmt.Printf("error: %v", err)
 		return nil, err
 	}
 	defer file.Close()
 	data, err := ioutil.ReadAll(file)
 	if err != nil {
-		fmt.Printf("error: %v", err)
+		//fmt.Printf("error: %v", err)
 		return nil, err
 	}
 	v := SConfig{}
 	err = xml.Unmarshal(data, &v)
 	if err != nil {
-		fmt.Printf("error: %v", err)
+		//fmt.Printf("error: %v", err)
 		return nil, err
 	}
 
@@ -62,8 +63,9 @@ func readXml() (*SConfig, error) {
 }
 
 func setGlobal(v *SConfig)  {
+	names := v.ApiNames.Names
 	for _, api := range v.ApiNames.Api{
-		if api.Use == "true"{
+		if strings.Contains(names, api.Name){
 			global.ApiNames[api.Name] = api.Url
 		}
 	}
@@ -72,7 +74,11 @@ func setGlobal(v *SConfig)  {
 	}
 
 	m := v.Mongo
-	mongo.MgoUrl = m.MgoUrl
-	mongo.DbName = m.DbName
-	mongo.TableName = m.TableName
+	if m.Use == "true"{
+		global.IsStoreData = true
+		mongo.MgoUrl = m.MgoUrl
+		mongo.DbName = m.DbName
+		mongo.TableName = m.TableName
+	}
+
 }

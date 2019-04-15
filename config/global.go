@@ -7,7 +7,7 @@ import (
 	"github.com/nntaoli-project/GoEx/hitbtc"
 	"github.com/nntaoli-project/GoEx/huobi"
 	"github.com/nntaoli-project/GoEx/okcoin"
-	"github.com/wonderivan/logger"
+	"log"
 	"net"
 	"net/http"
 	"net/url"
@@ -89,7 +89,8 @@ func GlobalInstance() *Global {
 	}
 	v, err := readXml()
 	if err != nil {
-		logger.Alert(err)
+		log.Println(err)
+		time.Sleep(15*time.Second)
 		os.Exit(1)
 	}
 	global = &Global{

@@ -64,7 +64,6 @@ var (
 func main() {
 	// 通过配置参数直接配置
 	logger.SetLogger(logCfg)
-
 	//logger.Trace("this is Trace") // 由于默认输出，只会在控制台输出Debug及其以上日志，所以该条不会输出
 	//logger.Debug("this is Debug")
 	//logger.Info("this is Info")
