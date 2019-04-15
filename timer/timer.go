@@ -36,7 +36,7 @@ func GetTicker(api, symbol string) {
 			if dura > global.Duration {
 				tmpWeight[api] = 0
 				//t := time.Unix(nowSecond,0).Format("2006-01-02 15:04:05")
-				logger.Warn("api:%s symbol:%s dura:%d", api, symbol, dura)
+				//logger.Warn("api:%s symbol:%s dura:%d", api, symbol, dura)
 			} else {
 				tmpWeight[api] = global.Weight[api]
 				global.Tickers[api][symbol] = ticker
@@ -66,21 +66,21 @@ func StartTimer() error {
 		}
 	}
 
-	for _, api := range global.ApiNames {
+	for api, _ := range global.ApiNames {
 		for _, symbol := range global.VecSymbols {
 			go GetTicker(api, symbol)
 		}
 	}
 
-	time.Sleep(10*time.Second)
+	//time.Sleep(10*time.Second)
 	tk1 := toolbox.NewTask("task1", "0/1 * * * * *", func() error {
 		global.RdMutex.Lock()
 		defer global.RdMutex.Unlock()
 
 		for _, symbol := range global.VecSymbols{
 			sumTicker := goex.NewTicker()
-			for _, api := range global.ApiNames {
-				if tmpWeight[api] >0 {
+			for api, _ := range global.ApiNames {
+				if tmpWeight[api] >0 && global.Tickers[api][symbol]!=nil{
 					sumTicker.Add(global.Tickers[api][symbol].Multi(tmpWeight[api]))
 				}
 			}
@@ -97,7 +97,7 @@ func StartTimer() error {
 
 			jsonStr, err := utils.Struct2JsonString(utils.GoexTicker2Ticker(global.WeightMeanTickers[symbol], config.API_HASHKEY))
 			if err == nil {
-				logger.Trace("weighted mean %s", jsonStr)
+				logger.Info("weighted mean %s", jsonStr)
 			}
 		}
 

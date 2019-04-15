@@ -5,10 +5,10 @@ import (
 	"gopkg.in/mgo.v2"
 )
 
-const (
-	mgoUrl = "127.0.0.1:27017"
-	dbName = "wx"
-	tableName = "ticker"
+var (
+	MgoUrl = "127.0.0.1:27017"
+	DbName = "wx"
+	TableName = "ticker"
 )
 
 type MgoClient struct {
@@ -18,11 +18,11 @@ type MgoClient struct {
 
 
 func NewMgoClient() (client MgoClient, err error){
-	client.session, err = mgo.Dial(mgoUrl)
+	client.session, err = mgo.Dial(MgoUrl)
 	if err == nil{
 		// Optional. Switch the session to a monotonic behavior.
 		client.session.SetMode(mgo.Monotonic, true)
-		client.c = client.session.DB(dbName).C(tableName)
+		client.c = client.session.DB(DbName).C(TableName)
 	}
 	return
 }

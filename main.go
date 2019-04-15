@@ -35,7 +35,7 @@ var (
 	logCfg = `{
 	"TimeFormat":"2006-01-02 15:04:05", 
 	"Console": {           
-		"level": "TRAC",  
+		"level": "INFO",  
 		"color": true       
 	},
 	"File": {                   
@@ -62,8 +62,6 @@ var (
 //7	TRAC	用户级基本输出，比如成员信息，结构体值等	绿色
 
 func main() {
-	
-
 	// 通过配置参数直接配置
 	logger.SetLogger(logCfg)
 
@@ -75,6 +73,8 @@ func main() {
 	//logger.Crit("this is Critical")
 	//logger.Alert("this is Alert")
 	//logger.Emer("this is Emergency")
+
+
 
 	timer.StartTimer()
 	server.StartServer()

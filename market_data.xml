@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+
+    <!--订阅哪些外部交易所-->
+    <ApiNames>
+        <api>
+            <name>huobi</name>
+            <use>true</use>
+            <url>https://api.huobi.pro</url>
+        </api>>
+        <api>
+            <name>okex</name>
+            <use>true</use>
+            <url>https://www.okex.com/api/v1/</url>
+        </api>
+        <api>
+            <name>hitbtc</name>
+            <use>true</use>
+            <url>https://api.hitbtc.com/</url>
+        </api>
+        <api>
+            <name>binance</name>>
+            <use>false</use>>
+            <url>https://api.binance.com/</url>
+        </api>
+    </ApiNames>
+    <!--订阅哪些合约-->
+    <VecSymbols>
+        <symbol>ETH-BTC</symbol>
+        <symbol>BTC-USDT</symbol>
+    </VecSymbols>
+    <!--mongo存ticker数据-->
+    <Mongo>
+        <mgoUrl>127.0.0.1:27017</mgoUrl>
+        <dbName>wx</dbName>
+        <tableName>ticker</tableName>
+    </Mongo>
+</config>

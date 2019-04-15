@@ -7,9 +7,11 @@ import (
 	"github.com/nntaoli-project/GoEx/hitbtc"
 	"github.com/nntaoli-project/GoEx/huobi"
 	"github.com/nntaoli-project/GoEx/okcoin"
+	"github.com/wonderivan/logger"
 	"net"
 	"net/http"
 	"net/url"
+	"os"
 	"sync"
 	"time"
 )
@@ -56,7 +58,8 @@ var (
 )
 
 type Global struct {
-	ApiNames []string
+	// name -> url
+	ApiNames map[string]string
 	VecSymbols []string
 	// api -> symbol -> Ticker
 	Tickers map[string]map[string]*goex.Ticker
@@ -84,37 +87,47 @@ func GlobalInstance() *Global {
 	if global != nil{
 		return global
 	}
+	v, err := readXml()
+	if err != nil {
+		logger.Alert(err)
+		os.Exit(1)
+	}
 	global = &Global{
 		// "binance", "bithumb"   "huobi",
-		ApiNames: []string{API_OKEX, API_HITBTC, API_HUOBI}, //exchange
-		VecSymbols: []string{"BTC-USDT", "ETH-USDT", "ETH-BTC"},//
+		ApiNames: map[string]string{}, //exchange
+		VecSymbols: []string{},//"BTC-USDT", "ETH-USDT",
 		Duration: 10,
 		IsStoreData: false,
 	}
+	setGlobal(v)
 
 	global.Tickers = map[string]map[string]*goex.Ticker{}
-	for _, api := range global.ApiNames{
+	for api, _ := range global.ApiNames{
 		global.Tickers[api] = map[string]*goex.Ticker{}
 	}
 
 	global.Weight = map[string]float64{}
 	global.Apis = map[string]goex.API{}
-	for _, api := range global.ApiNames{
-		if api == API_HUOBI{
-			global.Weight[api] = 1
-			global.Apis[api] = huobi.NewHuoBiProSpot(http.DefaultClient, apikey_huobi, secretkey_huobi)
-		} else if api == API_OKEX{
-			global.Weight[api] = 1
-			global.Apis[api] = okcoin.NewOKExSpot(http.DefaultClient, apikey_okex, secretkey_okex)
-		} else if api == API_HITBTC{
-			global.Weight[api] = 1
-			global.Apis[api] = hitbtc.New(http.DefaultClient, apikey_hitbtc, secretkey_hitbtc)
-		} else if api == API_BINANCE{
-			global.Weight[api] = 1
-			global.Apis[api] = binance.New(http.DefaultClient, apikey_binance, secretkey_binance)
-		} else if api == API_BITHUMB{
-			global.Weight[api] = 0
-			global.Apis[api] = bithumb.New(http.DefaultClient, apikey_bithumb, secretkey_bithumb)
+	for name, url := range global.ApiNames{
+		if name == API_HUOBI{
+			global.Weight[name] = 1
+			huobi.API_BASE_URL = url
+			global.Apis[name] = huobi.NewHuoBiProSpot(http.DefaultClient, apikey_huobi, secretkey_huobi)
+		} else if name == API_OKEX{
+			global.Weight[name] = 1
+			okcoin.API_BASE_URL = url
+			global.Apis[name] = okcoin.NewOKExSpot(http.DefaultClient, apikey_okex, secretkey_okex)
+		} else if name == API_HITBTC{
+			global.Weight[name] = 1
+			hitbtc.API_BASE_URL = url
+			global.Apis[name] = hitbtc.New(http.DefaultClient, apikey_hitbtc, secretkey_hitbtc)
+		} else if name == API_BINANCE{
+			global.Weight[name] = 1
+			binance.API_BASE_URL = url
+			global.Apis[name] = binance.New(http.DefaultClient, apikey_binance, secretkey_binance)
+		} else if name == API_BITHUMB{
+			global.Weight[name] = 0
+			global.Apis[name] = bithumb.New(http.DefaultClient, apikey_bithumb, secretkey_bithumb)
 		} else {
 			panic("need add api")
 		}
@@ -123,3 +136,4 @@ func GlobalInstance() *Global {
 
 	return global
 }
+
