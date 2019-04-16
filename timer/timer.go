@@ -2,13 +2,14 @@ package timer
 
 import (
 	"github.com/astaxie/beego/toolbox"
-	"github.com/nntaoli-project/GoEx"
+	"github.com/wudian/GoEx"
 	"github.com/wonderivan/logger"
 	"github.com/wudian/market_data/config"
 	"github.com/wudian/market_data/mongo"
 	"github.com/wudian/market_data/server"
 	"github.com/wudian/market_data/utils"
 	"math"
+	"os"
 	"time"
 )
 
@@ -36,7 +37,7 @@ func GetTicker(api, symbol string) {
 			if dura > global.Duration {
 				tmpWeight[api] = 0
 				//t := time.Unix(nowSecond,0).Format("2006-01-02 15:04:05")
-				//logger.Warn("api:%s symbol:%s dura:%d", api, symbol, dura)
+				logger.Warn("api:%s symbol:%s dura:%d", api, symbol, dura)
 			} else {
 				tmpWeight[api] = global.Weight[api]
 				global.Tickers[api][symbol] = ticker
@@ -61,8 +62,9 @@ func StartTimer() error {
 	if global.IsStoreData{
 		mgoClient, err = mongo.NewMgoClient()
 		if err != nil {
-			logger.Alert(err.Error())
-			return nil
+			logger.Alert("connect mongo:", err.Error())
+			time.Sleep(15*time.Second)
+			os.Exit(1)
 		}
 	}
 

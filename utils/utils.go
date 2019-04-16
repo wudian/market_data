@@ -2,7 +2,7 @@ package utils
 
 import (
 	"encoding/json"
-	"github.com/nntaoli-project/GoEx"
+	"github.com/wudian/GoEx"
 	"github.com/wudian/market_data/models"
 )
 

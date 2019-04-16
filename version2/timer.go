@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/astaxie/beego/toolbox"
-	"github.com/nntaoli-project/GoEx"
+	"github.com/wudian/GoEx"
 	"math"
 	"time"
 )

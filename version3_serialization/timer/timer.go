@@ -2,7 +2,7 @@ package timer
 
 import (
 	"github.com/astaxie/beego/toolbox"
-	"github.com/nntaoli-project/GoEx"
+	"github.com/wudian/GoEx"
 	"github.com/wudian/wx/config"
 	"github.com/wudian/wx/server"
 	"github.com/wudian/wx/utils"

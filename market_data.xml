@@ -2,27 +2,27 @@
 <config>
 
     <!--订阅哪些外部交易所-->
-    <ApiNames names="huobi,okex,hitbtc">
+    <ApiNames names="huobi,okex,hitbtc,binance">
         <api>
             <name>huobi</name>
             <url>https://api.huobi.pro</url>
         </api>>
         <api>
             <name>okex</name>
-            <url>https://www.okex.com/api/v1/</url>
+            <url>https://www.okex.com</url>
         </api>
         <api>
             <name>hitbtc</name>
-            <url>https://api.hitbtc.com/</url>
+            <url>https://api.hitbtc.com</url>
         </api>
         <api>
             <name>binance</name>
-            <url>https://api.binance.com/</url>
+            <url>https://api.binance.com</url>
         </api>
     </ApiNames>
     <!--订阅哪些合约-->
     <VecSymbols>
-        <symbol>ETH-BTC</symbol>
+        <!--<symbol>ETH-BTC</symbol>-->
         <symbol>BTC-USDT</symbol>
     </VecSymbols>
     <!--mongo存ticker数据-->

@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/nntaoli-project/GoEx"
+	"github.com/wudian/GoEx"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )

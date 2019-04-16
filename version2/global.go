@@ -1,12 +1,12 @@
 package main
 
 import (
-	"github.com/nntaoli-project/GoEx"
-	"github.com/nntaoli-project/GoEx/binance"
-	"github.com/nntaoli-project/GoEx/bithumb"
-	"github.com/nntaoli-project/GoEx/hitbtc"
-	"github.com/nntaoli-project/GoEx/huobi"
-	"github.com/nntaoli-project/GoEx/okcoin"
+	"github.com/wudian/GoEx"
+	"github.com/wudian/GoEx/binance"
+	"github.com/wudian/GoEx/bithumb"
+	"github.com/wudian/GoEx/hitbtc"
+	"github.com/wudian/GoEx/huobi"
+	"github.com/wudian/GoEx/okcoin"
 	"log"
 	"net"
 	"net/http"
