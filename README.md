@@ -15,7 +15,7 @@ global = &Global{
 
 4.server.go provide restful or websocket server base on beego
 restful:   http://127.0.0.1:8080/market/ticker/?symbol=btc-usdt
-websocket:   https://www.bejson.com/httputil/websocket/     ws://127.0.0.1:8080/ws    {"symbol":"btc-usdt"}
+websocket:   https://www.bejson.com/httputil/websocket/     ws://127.0.0.1:8080/ws    {"symbol":"eth-btc"}
 
 5.kafka
 
