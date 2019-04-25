@@ -1,12 +1,6 @@
 package config
 
 import (
-	"github.com/wudian/GoEx"
-	"github.com/wudian/GoEx/binance"
-	"github.com/wudian/GoEx/bithumb"
-	"github.com/wudian/GoEx/hitbtc"
-	"github.com/wudian/GoEx/huobi"
-	"github.com/wudian/GoEx/okcoin"
 	"log"
 	"net"
 	"net/http"
@@ -14,15 +8,23 @@ import (
 	"os"
 	"sync"
 	"time"
+
+	"github.com/wonderivan/logger"
+	"github.com/wudian/GoEx"
+	"github.com/wudian/GoEx/binance"
+	"github.com/wudian/GoEx/bithumb"
+	"github.com/wudian/GoEx/hitbtc"
+	"github.com/wudian/GoEx/huobi"
+	"github.com/wudian/GoEx/okcoin"
 )
 
 const (
 	// "binance", "bithumb"  "huobi", , "hitbtc"
 	API_HASHKEY = "hashkey"
-	API_HUOBI = "huobi"
-	API_OKEX = "okex"
+	API_HUOBI   = "huobi"
+	API_OKEX    = "okex"
 	API_BINANCE = "binance"
-	API_HITBTC = "hitbtc"
+	API_HITBTC  = "hitbtc"
 	API_BITHUMB = "bithumb"
 )
 
@@ -59,7 +61,7 @@ var (
 
 type Global struct {
 	// name -> url
-	ApiNames map[string]string
+	ApiNames   map[string]string
 	VecSymbols []string
 	// api -> symbol -> Ticker
 	Tickers map[string]map[string]*goex.Ticker
@@ -75,58 +77,63 @@ type Global struct {
 	//api_name -> api
 	Apis map[string]goex.API
 
-	Duration uint64 // duration between api.date and local, out of range is invalid
+	Duration    uint64 // duration between api.date and local, out of range is invalid
 	IsStoreData bool
 }
 
 var global *Global
 var mu sync.Mutex
+
 func GlobalInstance() *Global {
 	mu.Lock()
 	defer mu.Unlock()
-	if global != nil{
+	if global != nil {
 		return global
 	}
 	v, err := readXml()
 	if err != nil {
 		log.Println(err)
-		time.Sleep(15*time.Second)
+		time.Sleep(15 * time.Second)
 		os.Exit(1)
 	}
 	global = &Global{
 		// "binance", "bithumb"   "huobi",
-		ApiNames: map[string]string{}, //exchange
-		VecSymbols: []string{},//"BTC-USDT", "ETH-USDT",
-		Duration: 30,
+		ApiNames:    map[string]string{}, //exchange
+		VecSymbols:  []string{},          //"BTC-USDT", "ETH-USDT",
+		Duration:    30,
 		IsStoreData: false,
 	}
 	setGlobal(v)
 
 	global.Tickers = map[string]map[string]*goex.Ticker{}
-	for api, _ := range global.ApiNames{
+	for api, _ := range global.ApiNames {
 		global.Tickers[api] = map[string]*goex.Ticker{}
 	}
 
 	global.Weight = map[string]float64{}
 	global.Apis = map[string]goex.API{}
-	for name, url := range global.ApiNames{
-		if name == API_HUOBI{
+	logger.Debug("for name, url := range global.ApiNames\n")
+	for name, url := range global.ApiNames {
+		logger.Debug("name: %s, url: %s\n", name, url)
+		if name == API_HUOBI {
 			global.Weight[name] = 1
 			huobi.API_BASE_URL = url
 			global.Apis[name] = huobi.NewHuoBiProSpot(http.DefaultClient, apikey_huobi, secretkey_huobi)
-		} else if name == API_OKEX{
+		} else if name == API_OKEX {
 			global.Weight[name] = 1
 			okcoin.API_BASE_URL = url
 			global.Apis[name] = okcoin.NewOKExSpot(http.DefaultClient, apikey_okex, secretkey_okex)
-		} else if name == API_HITBTC{
+		} else if name == API_HITBTC {
 			global.Weight[name] = 1
 			hitbtc.API_BASE_URL = url
 			global.Apis[name] = hitbtc.New(http.DefaultClient, apikey_hitbtc, secretkey_hitbtc)
-		} else if name == API_BINANCE{
+		} else if name == API_BINANCE {
 			global.Weight[name] = 1
 			binance.API_BASE_URL = url
+			binance.API_V1 = url + "/api/v1/"
+			binance.API_V3 = url + "/api/v3/"
 			global.Apis[name] = binance.New(http.DefaultClient, apikey_binance, secretkey_binance)
-		} else if name == API_BITHUMB{
+		} else if name == API_BITHUMB {
 			global.Weight[name] = 0
 			global.Apis[name] = bithumb.New(http.DefaultClient, apikey_bithumb, secretkey_bithumb)
 		} else {
@@ -137,4 +144,3 @@ func GlobalInstance() *Global {
 
 	return global
 }
-
