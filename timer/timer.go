@@ -2,8 +2,8 @@ package timer
 
 import (
 	"github.com/astaxie/beego/toolbox"
-	"github.com/wudian/GoEx"
 	"github.com/wonderivan/logger"
+	"github.com/wudian/GoEx"
 	"github.com/wudian/market_data/config"
 	"github.com/wudian/market_data/mongo"
 	"github.com/wudian/market_data/server"
@@ -24,7 +24,7 @@ var (
 
 func GetTicker(api, symbol string) {
 	for {
-		time.Sleep(1*time.Second)
+		time.Sleep(1 * time.Second)
 		nowSecond = time.Now().Unix()
 		pair := goex.NewCurrencyPair2(symbol)
 		ticker, err := global.Apis[api].GetTicker(pair)
@@ -59,11 +59,11 @@ func GetTicker(api, symbol string) {
 }
 
 func StartTimer() error {
-	if global.IsStoreData{
+	if global.IsStoreData {
 		mgoClient, err = mongo.NewMgoClient()
 		if err != nil {
 			logger.Alert("connect mongo:", err.Error())
-			time.Sleep(15*time.Second)
+			time.Sleep(15 * time.Second)
 			os.Exit(1)
 		}
 	}
@@ -79,18 +79,18 @@ func StartTimer() error {
 		global.RdMutex.Lock()
 		defer global.RdMutex.Unlock()
 
-		for _, symbol := range global.VecSymbols{
+		for _, symbol := range global.VecSymbols {
 			sumTicker := goex.NewTicker()
 			for api, _ := range global.ApiNames {
-				if tmpWeight[api] >0 && global.Tickers[api][symbol]!=nil{
+				if tmpWeight[api] > 0 && global.Tickers[api][symbol] != nil {
 					sumTicker.Add(global.Tickers[api][symbol].Multi(tmpWeight[api]))
 				}
 			}
 			sumWei := float64(0)
-			for _, wei := range tmpWeight{
+			for _, wei := range tmpWeight {
 				sumWei += wei
 			}
-			if sumWei == float64(0){
+			if sumWei == float64(0) {
 				break
 			}
 			sumTicker.Date = nowSecond
@@ -102,7 +102,6 @@ func StartTimer() error {
 				logger.Info("weighted mean %s", jsonStr)
 			}
 		}
-
 
 		server.SendTicker()
 		return nil

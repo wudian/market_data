@@ -22,7 +22,7 @@ func (this *MainController) Get() {
 	}
 }
 
-func StartServer()  {
+func StartServer() {
 	beego.Router("/market/ticker", &MainController{})
 
 	InitWebsocket()

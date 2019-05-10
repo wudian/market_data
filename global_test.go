@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/wudian/GoEx"
 	"github.com/stretchr/testify/assert"
+	"github.com/wudian/GoEx"
 	"github.com/wudian/wx/config"
 	"github.com/wudian/wx/kafka"
 	"github.com/wudian/wx/mongo"
@@ -14,13 +14,13 @@ func testSymbol(t *testing.T) {
 	global := config.GlobalInstance()
 	for _, api := range global.ApiNames {
 		for _, symbol := range global.VecSymbols {
-			t.Log(symbol + "->"+api+"->"+goex.NewCurrencyPair2(symbol).String())
+			t.Log(symbol + "->" + api + "->" + goex.NewCurrencyPair2(symbol).String())
 		}
 	}
 
 }
 
-func TestApi(t *testing.T)  {
+func TestApi(t *testing.T) {
 	global := config.GlobalInstance()
 	pair := goex.NewCurrencyPair2("ETH-BTC")
 	goexTicker, err := global.Apis[config.API_OKEX].GetTicker(pair)
@@ -36,13 +36,12 @@ func TestApi(t *testing.T)  {
 	}
 
 	client, err := mongo.NewMgoClient()
-	if err==nil{
+	if err == nil {
 		client.Insert(ticker)
 	}
 }
 
-func testKafka(t *testing.T)  {
+func testKafka(t *testing.T) {
 	kafka.SyncProducer()
 	assert.Equal(t, "123", "123")
 }
-

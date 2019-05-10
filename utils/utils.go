@@ -6,8 +6,6 @@ import (
 	"github.com/wudian/market_data/models"
 )
 
-
-
 /*
  struct convert json string
 */
@@ -32,19 +30,18 @@ func GoexTicker2Ticker(goexTick *goex.Ticker, api string) *models.Ticker {
 		goexTick = goex.NewTicker()
 	}
 	ticker := &models.Ticker{
-		Api:api,
+		Api:    api,
 		Symbol: goexTick.Pair.ToSymbol("-"),
-		Last: goexTick.Last,
-		Buy: goexTick.Buy,
-		Sell: goexTick.Sell,
-		High: goexTick.High,
-		Low: goexTick.Low,
-		Vol: goexTick.Vol,
-		Date: goexTick.Date,
+		Last:   goexTick.Last,
+		Buy:    goexTick.Buy,
+		Sell:   goexTick.Sell,
+		High:   goexTick.High,
+		Low:    goexTick.Low,
+		Vol:    goexTick.Vol,
+		Date:   goexTick.Date,
 	}
 	return ticker
 }
-
 
 func DeepCopy(value interface{}) interface{} {
 	if valueMap, ok := value.(map[string]interface{}); ok {

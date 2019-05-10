@@ -73,8 +73,6 @@ func main() {
 	//logger.Alert("this is Alert")
 	//logger.Emer("this is Emergency")
 
-
-
 	timer.StartTimer()
 	server.StartServer()
 }

@@ -9,7 +9,7 @@ import (
 
 func StartTimer() error {
 	var (
-		err error
+		err    error
 		global = GlobalInstance()
 	)
 	tk := toolbox.NewTask("task", "0/5 * * * * *", func() error {
@@ -25,8 +25,8 @@ func StartTimer() error {
 					tmp_weight[api] = 0
 					continue
 				} else {
-					dura := uint64(math.Abs(float64(global.tickers[api][symbol].Date-now_second)))
-					if dura>global.duration{
+					dura := uint64(math.Abs(float64(global.tickers[api][symbol].Date - now_second)))
+					if dura > global.duration {
 						tmp_weight[api] = 0
 						continue
 					}
@@ -44,16 +44,16 @@ func StartTimer() error {
 
 		global.mutexWeightMeanTickers.Lock()
 		defer global.mutexWeightMeanTickers.Unlock()
-		for _, symbol := range global.vecSymbols{
+		for _, symbol := range global.vecSymbols {
 			sumTicker := goex.NewTicker()
 			for _, api := range global.apiNames {
-				if global.weight[api] >0 {
+				if global.weight[api] > 0 {
 					sumTicker.Add(global.tickers[api][symbol].Multi(global.weight[api]))
 				}
 
 			}
 			sumWei := float64(0)
-			for _, wei := range global.weight{
+			for _, wei := range global.weight {
 				sumWei += wei
 			}
 			sumTicker.Date = now_second

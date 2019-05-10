@@ -7,17 +7,16 @@ import (
 
 const (
 	HUOBI = 0
-	OKEX = 1
+	OKEX  = 1
 
 	APINUM = 5
 )
 
 type Global struct {
-	apiNames []string
-	vecSymbols []string
-	tickers map[string]map[string]interface{}
-	client_okex  *okex.Client
-
+	apiNames    []string
+	vecSymbols  []string
+	tickers     map[string]map[string]interface{}
+	client_okex *okex.Client
 
 	isPrint bool
 }
@@ -27,7 +26,7 @@ func GlobalInstance() *Global {
 	global.apiNames = []string{"huobi", "okex"}
 	global.vecSymbols = []string{"eth_usdt", "eth_btc"}
 	global.tickers = map[string]map[string]interface{}{}
-	for _, api := range global.apiNames{
+	for _, api := range global.apiNames {
 		global.tickers[api] = map[string]interface{}{}
 	}
 
@@ -36,7 +35,7 @@ func GlobalInstance() *Global {
 	return &global
 }
 
-func SymbolAdaptToApi(api, symbol string) string  {
+func SymbolAdaptToApi(api, symbol string) string {
 	symbol_api := symbol
 	if api == "huobi" {
 		symbol_api = strings.ReplaceAll(symbol, "_", "")
@@ -47,9 +46,9 @@ func SymbolAdaptToApi(api, symbol string) string  {
 
 func ApiNameAdaptToEnum(api string) int {
 	var no int
-	if api == "huobi"{
+	if api == "huobi" {
 		no = HUOBI
-	} else if api == "okex"{
+	} else if api == "okex" {
 		no = OKEX
 	}
 	return no

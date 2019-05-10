@@ -14,7 +14,7 @@ import (
 
 func StartTimer() error {
 	var (
-		err error
+		err    error
 		global = config.GlobalInstance()
 		// we need a lock to protect global.Tickers and global.WeightMeanTickers
 		rdMutex sync.RWMutex
@@ -34,8 +34,8 @@ func StartTimer() error {
 					tmp_weight[api] = 0
 					continue
 				} else {
-					dura := uint64(math.Abs(float64(global.Tickers[api][symbol].Date-now_second)))
-					if dura>global.Duration{
+					dura := uint64(math.Abs(float64(global.Tickers[api][symbol].Date - now_second)))
+					if dura > global.Duration {
 						tmp_weight[api] = 0
 						continue
 					}
@@ -53,19 +53,19 @@ func StartTimer() error {
 
 		global.MutexWeightMeanTickers.Lock()
 		defer global.MutexWeightMeanTickers.Unlock()
-		for _, symbol := range global.VecSymbols{
+		for _, symbol := range global.VecSymbols {
 			sumTicker := goex.NewTicker()
 			for _, api := range global.ApiNames {
-				if tmp_weight[api] >0 {
+				if tmp_weight[api] > 0 {
 					sumTicker.Add(global.Tickers[api][symbol].Multi(tmp_weight[api]))
 				}
 
 			}
 			sumWei := float64(0)
-			for _, wei := range tmp_weight{
+			for _, wei := range tmp_weight {
 				sumWei += wei
 			}
-			if sumWei == float64(0){
+			if sumWei == float64(0) {
 				break
 			}
 			sumTicker.Date = now_second

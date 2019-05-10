@@ -1,10 +1,6 @@
 package main
 
-var (
-
-)
-
-
+var ()
 
 func main() {
 	//test3()

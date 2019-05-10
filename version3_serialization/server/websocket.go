@@ -12,7 +12,7 @@ import (
 )
 
 var (
-	clients   = make(map[*websocket.Conn][]string)
+	clients      = make(map[*websocket.Conn][]string)
 	mutexClients sync.Mutex
 
 	//broadcast = make(chan string)
@@ -56,7 +56,7 @@ func (this *MyWebSocketController) Get() {
 		if err != nil {
 			times += 1
 			this.Ctx.WriteString(err.Error())
-			if times > 10{
+			if times > 10 {
 				return
 			}
 			continue
@@ -90,8 +90,8 @@ func SendTicker() {
 	global := config.GlobalInstance()
 	mutexClients.Lock()
 	defer mutexClients.Unlock()
-	for client, vecSymbols := range clients{
-		for _, symbol := range vecSymbols{
+	for client, vecSymbols := range clients {
+		for _, symbol := range vecSymbols {
 			jsonStr, err := utils.Struct2JsonString(utils.GoexTicker2Ticker(global.WeightMeanTickers[symbol]))
 			if err == nil {
 				err := client.WriteJSON(jsonStr)

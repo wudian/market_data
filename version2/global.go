@@ -55,7 +55,7 @@ var (
 )
 
 type Global struct {
-	apiNames []string
+	apiNames   []string
 	vecSymbols []string
 	// api -> symbol -> Ticker
 	tickers map[string]map[string]*goex.Ticker
@@ -63,60 +63,61 @@ type Global struct {
 	// api -> weight
 	weight map[string]float64
 	// weighted mean , symbol -> Ticker
-	weightMeanTickers map[string]*goex.Ticker
+	weightMeanTickers      map[string]*goex.Ticker
 	mutexWeightMeanTickers sync.Mutex
 
 	//api_name -> api
 	apis map[string]goex.API
 
 	duration uint64 // duration between api.date and local, out of range is invalid
-	isPrint bool // whether print log
-	log *log.Logger
+	isPrint  bool   // whether print log
+	log      *log.Logger
 }
 
 var global *Global
 var mu sync.Mutex
+
 func GlobalInstance() *Global {
 	mu.Lock()
 	defer mu.Unlock()
-	if global != nil{
+	if global != nil {
 		return global
 	}
 	global = &Global{
-		apiNames: []string{"huobi", "okex", "hitbtc", "binance", "bithumb"}, //,
-		vecSymbols: []string{"BTC_USDT", "ETH_USDT"},//
-		duration: 10,
-		isPrint: true,
+		apiNames:   []string{"huobi", "okex", "hitbtc", "binance", "bithumb"}, //,
+		vecSymbols: []string{"BTC_USDT", "ETH_USDT"},                          //
+		duration:   10,
+		isPrint:    true,
 	}
 	fileName := "wx.log"
-	logFile,err  := os.Create(fileName)
+	logFile, err := os.Create(fileName)
 	//defer logFile.Close()
 	if err != nil {
 		log.Fatalf("open file %s error !\n", fileName)
 	}
-	global.log = log.New(logFile,"", log.Ltime)
+	global.log = log.New(logFile, "", log.Ltime)
 
 	global.tickers = map[string]map[string]*goex.Ticker{}
-	for _, api := range global.apiNames{
+	for _, api := range global.apiNames {
 		global.tickers[api] = map[string]*goex.Ticker{}
 	}
 
 	global.weight = map[string]float64{}
 	global.apis = map[string]goex.API{}
-	for _, api := range global.apiNames{
-		if api == "huobi"{
+	for _, api := range global.apiNames {
+		if api == "huobi" {
 			global.weight[api] = 1
 			global.apis[api] = huobi.NewHuoBiProSpot(httpProxyClient, apikey_huobi, secretkey_huobi)
-		} else if api == "okex"{
+		} else if api == "okex" {
 			global.weight[api] = 1
 			global.apis[api] = okcoin.NewOKExSpot(http.DefaultClient, apikey_okex, secretkey_okex)
-		} else if api == "hitbtc"{
+		} else if api == "hitbtc" {
 			global.weight[api] = 1
 			global.apis[api] = hitbtc.New(http.DefaultClient, apikey_hitbtc, secretkey_hitbtc)
-		} else if api == "binance"{
+		} else if api == "binance" {
 			global.weight[api] = 1
 			global.apis[api] = binance.New(http.DefaultClient, apikey_binance, secretkey_binance)
-		} else if api == "bithumb"{
+		} else if api == "bithumb" {
 			global.weight[api] = 0
 			global.apis[api] = bithumb.New(http.DefaultClient, apikey_bithumb, secretkey_bithumb)
 		} else {

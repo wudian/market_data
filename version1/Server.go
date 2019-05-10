@@ -16,7 +16,7 @@ func (this *MainController) Get() {
 	//}
 }
 
-func StartServer()  {
+func StartServer() {
 	//beego.Router("/market/detail/merged", &MainController{})
 	beego.Run()
 }

@@ -7,7 +7,7 @@ import (
 	"github.com/okcoin-okex/open-api-v3-sdk/okex-go-sdk-api"
 )
 
-func test2()  {
+func test2() {
 	c := okex.NewTestClient()
 	ac, err := c.GetSpotInstrumentTicker("LTC-USDT")
 	if err == nil {
@@ -15,7 +15,7 @@ func test2()  {
 		println(jstr)
 	}
 }
-func test()  {
+func test() {
 	ret := services.GetSymbols()
 	jsonStr, err := json.Marshal(ret)
 	if err == nil {
@@ -23,6 +23,6 @@ func test()  {
 	}
 }
 
-func test3()  {
+func test3() {
 	fmt.Println("4444")
 }
